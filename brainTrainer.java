@@ -1,0 +1,171 @@
+package com.example.trainer;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.*;
+
+public class MainActivity extends AppCompatActivity {
+    ArrayList<Integer> answers;
+    ArrayList<Integer> answersa;
+    ArrayList<Integer> answersb;
+    ArrayList<Button> buttons;
+    CountDownTimer counting;
+    Boolean checker;
+    int a,b,c;
+    int ar,br,cr;
+    int counter=1;
+    int scores;
+    Button optionA;
+    Button optionB;
+    Button optionC;
+    Button optionD;
+    Button start;
+    TextView questionText;
+    TextView running;
+    TextView checking;
+    TextView score;
+    Random random=new Random();
+    public void answering(View view){
+        Button answer=(Button)view;
+        change(counter);
+
+        if(Integer.parseInt(answer.getText().toString())==answers.get(counter-1)){
+            checker=true;
+            checking.setText("Correct");
+        }
+        else{
+            checker=false;
+            checking.setText("Wrong");
+        }
+
+        if(checker==true){
+            scores=scores+1;
+            score.setText(Integer.toString(scores)+"/"+Integer.toString(counter));
+        }
+        if(checker==false){
+            score.setText(Integer.toString(scores)+"/"+Integer.toString(counter));
+        }
+
+        int option=random.nextInt(4);
+        for(Button button:buttons){
+            if(option==Integer.parseInt(button.getTag().toString())){
+                button.setText(Integer.toString(answers.get(counter)));
+            }
+            else{
+                generateRandom();
+                button.setText(Integer.toString(cr));
+            }
+        }
+        Log.i("Counter value",Integer.toString(counter));
+        counter=counter+1;
+    }
+    public void generateRandom(){
+        ar=random.nextInt(80);
+        br=random.nextInt(80);
+        cr=ar+br;
+    }
+    public void change(int count){
+        questionText.setText(answersa.get(count).toString()+"+"+answersb.get(count).toString());
+    }
+
+    public void starting(){
+        answers=new ArrayList<Integer>();
+        answersa=new ArrayList<Integer>();
+        answersb=new ArrayList<Integer>();
+        for(int i=0;i<40;i++){
+            a= random.nextInt(80);
+            b= random.nextInt(80);
+            c=a+b;
+            answersa.add(a);
+            answersb.add(b);
+            answers.add(c);
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        start=(Button)findViewById(R.id.button);
+
+        scores=0;
+        optionA=(Button)findViewById(R.id.buttonA);
+        optionA.setVisibility(View.INVISIBLE);
+        optionB=(Button)findViewById(R.id.buttonB);
+        optionB.setVisibility(View.INVISIBLE);
+        optionC=(Button)findViewById(R.id.buttonC);
+        optionC.setVisibility(View.INVISIBLE);
+        optionD=(Button)findViewById(R.id.buttonD);
+        optionD.setVisibility(View.INVISIBLE);
+        questionText=(TextView)findViewById(R.id.questionText);
+        questionText.setVisibility(View.INVISIBLE);
+        running=(TextView)findViewById(R.id.running);
+        checking=(TextView)findViewById(R.id.checking);
+        score=(TextView)findViewById(R.id.score);
+
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                score.setText("0/0");
+                optionA.setEnabled(true);
+                optionB.setEnabled(true);
+                optionC.setEnabled(true);
+                optionD.setEnabled(true);
+                starting();
+                change(0);
+                int option=random.nextInt(4);
+                for(Button button:buttons){
+                    if(option==Integer.parseInt(button.getTag().toString())){
+                        button.setText(Integer.toString(answers.get(0)));
+                    }
+                    else{
+                        generateRandom();
+                        button.setText(Integer.toString(cr));
+                    }
+                }
+                optionA.setVisibility(View.VISIBLE);
+                optionB.setVisibility(View.VISIBLE);
+                optionC.setVisibility(View.VISIBLE);
+                optionD.setVisibility(View.VISIBLE);
+                questionText.setVisibility(View.VISIBLE);
+                start.setVisibility(View.INVISIBLE);
+
+                counting=new CountDownTimer(30*1000,1000){
+
+                    @Override
+                    public void onTick(long l) {
+                        running.setText(Integer.toString((int)l/1000)+"s");
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        start.setVisibility(View.VISIBLE);
+                        counter=1;
+                        optionA.setEnabled(false);
+                        optionB.setEnabled(false);
+                        optionC.setEnabled(false);
+                        optionD.setEnabled(false);
+                        questionText.setText("Start again");
+                        checking.setText("");
+                        scores=0;
+                    }
+                }.start();
+            }
+        });
+        buttons=new ArrayList<Button>();
+
+        buttons.add(optionA);
+        buttons.add(optionB);
+        buttons.add(optionC);
+        buttons.add(optionD);
+    }
+}
