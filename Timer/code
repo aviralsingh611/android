@@ -1,0 +1,105 @@
+package com.example.alarm;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.provider.MediaStore;
+import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+
+public class MainActivity extends AppCompatActivity {
+
+    AudioManager manager;
+    TextView time;
+    SeekBar seek;
+    Button controller;
+    Boolean buttonAction=true;
+    CountDownTimer countDown;
+    public void alarmfunction(View view){
+        if(buttonAction){
+            buttonAction=false;
+            seek.setEnabled(false);
+            controller.setText("STOP");
+
+            countDown=new CountDownTimer(seek.getProgress()*1000+100,1000) {
+                @Override
+                public void onTick(long l) {
+                    update((int) l/1000);
+                }
+
+                @Override
+                public void onFinish() {
+                    MediaPlayer media=MediaPlayer.create(getApplicationContext(),R.raw.alarmsound);
+                    media.start();
+                    time.setText("0:30");
+                    seek.setProgress(30);
+                    seek.setEnabled(true);
+                    countDown.cancel();
+                    controller.setText("GO");
+                    buttonAction=true;
+
+                }
+            }.start();
+        }
+        else{
+            time.setText("0:30");
+            seek.setProgress(30);
+            seek.setEnabled(true);
+            countDown.cancel();
+            controller.setText("GO");
+            buttonAction=true;
+
+        }
+    }
+
+    public void update(int secondsleft){
+        int minutes=secondsleft/60;
+        int seconds=secondsleft-(minutes*60);
+        String zero="0";
+        if(0<=seconds && seconds<=9){
+            time.setText(Integer.toString(minutes)+":"+zero+Integer.toString(seconds));
+        }
+        else{
+            time.setText(Integer.toString(minutes)+":"+Integer.toString(seconds));
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        time=findViewById(R.id.textView2);
+        controller=findViewById(R.id.button2);
+        manager=(AudioManager)getSystemService(AUDIO_SERVICE);
+
+        seek=findViewById(R.id.seekBar2);
+
+        seek.setMax(1200);
+        seek.setProgress(30);
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                update(i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+}
